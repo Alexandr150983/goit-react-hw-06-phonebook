@@ -1,8 +1,10 @@
+import { nanoid } from 'nanoid';
 import { Form as FormikForm, Label, Button } from './ContactForm.styled';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { addContact } from 'redux/contactsSlice';
 import { object, string } from 'yup';
+import { selectContacts } from 'redux/selectors';
 
 const schema = object({
   name: string().min(3, 'must be at least 3 characters long').required(),
@@ -21,7 +23,7 @@ const initialValues = {
 
 export function ContactForm() {
   const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.contacts);
+  const contacts = useSelector(selectContacts);
 
   const handleSubmit = (values, { resetForm }) => {
     const isDuplicate = contacts.some(
@@ -32,7 +34,12 @@ export function ContactForm() {
     if (isDuplicate) {
       alert('Цей контакт вже існує.');
     } else {
-      dispatch(addContact(values));
+      const newContact = {
+        id: nanoid(),
+        name: values.name,
+        number: values.number,
+      };
+      dispatch(addContact(newContact));
       resetForm();
     }
   };
